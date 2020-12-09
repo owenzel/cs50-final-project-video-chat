@@ -1,11 +1,10 @@
 // Handle connections to a video chat room (users visiting a URL with a certain ID) by accessing the client's camera and microphone
 // and adding them to the grid of videos. Also handle disconnections from the room (closing the browser tab).
-
 const socket = io('/');
 const videoGrid = document.getElementById('video-grid');
-const myPeer = new Peer(undefined, {
+const myPeer = new Peer({
   host: '/',
-  port: '3001'
+  port: '443'
 });
 const myVideo = document.createElement('video');
 myVideo.muted = true;
@@ -20,12 +19,15 @@ navigator.mediaDevices.getUserMedia({
     call.answer(stream);
     const video = document.createElement('video');
     call.on('stream', userVideoStream => {
-      addVideoStream(video, userVideoStream)
+      addVideoStream(video, userVideoStream);
     });
   })
 
   socket.on('user-connected', userId => {
-    connectToNewUser(userId, stream);
+    setTimeout(
+      () => {
+        connectToNewUser(userId, stream);
+      }, 1000);
   })
 })
 
