@@ -1,11 +1,11 @@
 //CREDIT FOR 90% of this: https://www.youtube.com/watch?v=DvlyzDZDEq4
 
-// Set up the server for web development with Express, Socket.io, and UUID (for generating random IDs for the URLs)
+// Set up the server for web development with Express, Socket.io, and Peer JS
 const express = require('express'); // Web development framework
-const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-const { ExpressPeerServer } = require('peer');
+const app = express(); // Express app
+const server = require('http').Server(app); // Node module that helps with networking
+const io = require('socket.io')(server); // Library that enables bi-directional communication among clients and servers
+const { ExpressPeerServer } = require('peer'); // Library that helps us simplify video calls -- it wraps around the browser's WebRTC implementation
 
 //Set the view engine to EJS
 app.set('view engine', 'ejs');
@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.send("Please append a '/' to the URL followed by your video chat room ID. (Check your email for the full link.)")
 })
 
-// Combine the PeerJS server with the Express server -- Credit: 
+// Combine the PeerJS server with the Express server
 const peerServer = ExpressPeerServer(server, {
   path:'/'
 })
@@ -29,7 +29,7 @@ app.get('/:room', (req, res) => {
   res.render('room', { roomId: req.params.room })
 })
 
-// Handle connections to video chat rooms
+// Handle connections to video chat rooms -- tell all users in the current room that we've just joined
 io.on('connection', socket => {
   socket.on('join-room', (roomId, userId) => {
     socket.join(roomId)
@@ -41,5 +41,6 @@ io.on('connection', socket => {
   })
 })
 
+// Listen for connections on process.env.PORT (which is necessary for Heroku) or on port 443 if process.env.PORT is not specified
 const port = process.env.PORT || 443;
 server.listen(port, () => console.log(`Listening on port ${port}...`));
